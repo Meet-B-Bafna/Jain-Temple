@@ -124,4 +124,8 @@ Temple details were compiled from public sources. Some records are marked in the
 
 ## Author
 
+<<<<<<< HEAD
 **Meet Bafna** · [GitHub](https://github.com/Meet-B-Bafna)
+=======
+**Meet Bafna** · [GitHub](https://github.com/Meet-B-Bafna)
+>>>>>>> 896459f (Add README, add openpyxl dependency, remove empty PROJECT_STATE)
