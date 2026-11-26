@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, Flower2, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, LockKeyhole } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 
 function Navbar() {
@@ -18,9 +18,11 @@ function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6">
 
         <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#a96b24] text-white">
-            <Flower2 size={25} />
-          </div>
+          <img
+            src="/jain flag.jpg"
+            alt="Jain flag"
+            className="h-11 w-11 rounded-full border-2 border-[#a96b24] object-cover object-center"
+          />
 
           <div>
             <h1 className="font-serif text-xl font-bold">Jain Darshan</h1>
@@ -30,7 +32,7 @@ function Navbar() {
           </div>
         </Link>
 
-        <div className="hidden items-center gap-7 text-sm font-medium md:flex">
+        <div className="hidden items-center gap-6 text-sm font-medium md:flex">
           {links.map((link) => (
             <NavLink
               key={link.path}
@@ -44,6 +46,20 @@ function Navbar() {
               {link.name}
             </NavLink>
           ))}
+
+          <NavLink
+            to="/mandir-login"
+            className={({ isActive }) =>
+              `flex items-center gap-2 ${
+                isActive
+                  ? "font-bold text-[#a96b24]"
+                  : "transition hover:text-[#a96b24]"
+              }`
+            }
+          >
+            <LockKeyhole size={16} />
+            Mandir Login
+          </NavLink>
         </div>
 
         <Link
@@ -78,6 +94,19 @@ function Navbar() {
               {link.name}
             </NavLink>
           ))}
+
+          <NavLink
+            to="/mandir-login"
+            onClick={() => setMenuOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-2 border-b border-[#e9dfcc] py-4 text-base ${
+                isActive ? "font-bold text-[#a96b24]" : ""
+              }`
+            }
+          >
+            <LockKeyhole size={17} />
+            Mandir Login
+          </NavLink>
         </div>
       )}
     </nav>

@@ -8,21 +8,26 @@ async def main():
 
     collection = database["temples"]
 
-    await collection.delete_one({"temple_id": "07"})
-    print("Duplicate Temple 07 removed.")
-
-    await collection.update_one(
-        {"temple_id": "01"},
+    temples = await collection.find(
+        {},
         {
-            "$set": {
-                "maps_url": "https://maps.app.goo.gl/oYFfDHKEw14iZNT86"
-            }
+            "_id": 0,
+            "temple_id": 1,
+            "name": 1,
+            "maps_url": 1
         }
-    )
+    ).sort("temple_id", 1).to_list(length=100)
 
-    print("Temple 01 Maps link updated.")
+    print("\nTEMPLE DATABASE VERIFICATION\n")
 
-    print("Total temples:", await collection.count_documents({}))
+    for temple in temples:
+        print(
+            f"{temple['temple_id']} | "
+            f"{temple['name']} | "
+            f"Maps: {'Available' if temple.get('maps_url') else 'Missing'}"
+        )
+
+    print("\nTotal temples:", len(temples))
 
     await close_db()
 

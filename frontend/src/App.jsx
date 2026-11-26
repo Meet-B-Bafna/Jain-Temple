@@ -2,12 +2,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
 import Temples from "./pages/Temples";
+import TempleDetails from "./pages/TempleDetails";
 import Journey from "./pages/Journey";
 import Seva from "./pages/Seva";
 import About from "./pages/About";
+
+import MandirLogin from "./pages/MandirLogin";
+import MandirDashboard from "./pages/MandirDashboard";
 
 function App() {
   return (
@@ -18,9 +23,21 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/temples" element={<Temples />} />
+          <Route path="/temples/:templeId" element={<TempleDetails />} />
           <Route path="/journey" element={<Journey />} />
           <Route path="/seva" element={<Seva />} />
           <Route path="/about" element={<About />} />
+
+          <Route path="/mandir-login" element={<MandirLogin />} />
+
+          <Route
+            path="/mandir-dashboard"
+            element={
+              <ProtectedRoute>
+                <MandirDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
 
         <Footer />

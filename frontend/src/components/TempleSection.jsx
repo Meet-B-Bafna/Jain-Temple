@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { MapPin, ChevronRight, Camera } from "lucide-react";
 
 function TempleSection({ temples }) {
@@ -59,14 +60,13 @@ function TempleSection({ temples }) {
                       View on Google Maps
                     </a>
                   )}
-
-                  <button
-                    type="button"
-                    className="flex min-h-12 items-center justify-between rounded-lg text-base font-bold text-[#a96b24] hover:text-[#82501b]"
+                  <Link
+                  to={`/temples/${temple.temple_id}`}
+                  className="flex min-h-12 items-center justify-between rounded-lg text-base font-bold text-[#a96b24] hover:text-[#82501b]"
                   >
                     Temple Details
                     <ChevronRight size={22} />
-                  </button>
+                    </Link>
                 </div>
               </div>
             </article>
