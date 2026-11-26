@@ -4,6 +4,8 @@ import {
   MapPin,
   ArrowRight,
   ArrowUp,
+  Volume2,
+  VolumeX,
   ChevronRight,
   ChevronDown,
   Sparkles,
@@ -89,8 +91,15 @@ const EXPLORE_TABS = [
 
 /* ---------- Page ---------- */
 
+const MUSIC_START_SECONDS = 30;
+
 function Home() {
   const introRef = useRef(null);
+  const audioRef = useRef(null);
+  const musicButtonRef = useRef(null);
+  const userStoppedRef = useRef(false);
+
+  const [musicPlaying, setMusicPlaying] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
   const [activeTab, setActiveTab] = useState("temples");
@@ -118,6 +127,92 @@ function Home() {
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = 0.5;
+
+    function seekToStart() {
+      if (audio.currentTime < MUSIC_START_SECONDS) {
+        audio.currentTime = MUSIC_START_SECONDS;
+      }
+    }
+
+    const interactionEvents = ["pointerdown", "keydown", "touchstart"];
+
+    function removeInteractionListeners() {
+      interactionEvents.forEach((name) =>
+        window.removeEventListener(name, handleFirstInteraction)
+      );
+    }
+
+    function tryPlay() {
+      if (userStoppedRef.current || !audio.paused) return;
+
+      seekToStart();
+
+      audio
+        .play()
+        .then(removeInteractionListeners)
+        .catch(() => {
+          /* Blocked by the browser: wait for the first tap or key press. */
+        });
+    }
+
+    function handleFirstInteraction(event) {
+      // The mute button has its own click handler.
+      if (musicButtonRef.current?.contains(event.target)) return;
+      tryPlay();
+    }
+
+    audio.addEventListener("loadedmetadata", seekToStart);
+    if (audio.readyState >= 1) seekToStart();
+
+    interactionEvents.forEach((name) =>
+      window.addEventListener(name, handleFirstInteraction, { passive: true })
+    );
+
+    // Try to start immediately when the page opens.
+    tryPlay();
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", seekToStart);
+      removeInteractionListeners();
+      audio.pause();
+    };
+  }, []);
+
+  async function toggleMusic() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused) {
+      userStoppedRef.current = false;
+
+      if (audio.currentTime < MUSIC_START_SECONDS) {
+        audio.currentTime = MUSIC_START_SECONDS;
+      }
+
+      try {
+        await audio.play();
+      } catch {
+        setMusicPlaying(false);
+      }
+    } else {
+      userStoppedRef.current = true;
+      audio.pause();
+    }
+  }
+
+  function handleMusicEnded() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.currentTime = MUSIC_START_SECONDS;
+    audio.play().catch(() => setMusicPlaying(false));
+  }
 
   function scrollToIntro() {
     introRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -354,6 +449,28 @@ function Home() {
 
         </div>
       </section>
+
+      {/* BACKGROUND MUSIC */}
+      <audio
+        ref={audioRef}
+        src="/jain-song.mp3"
+        preload="metadata"
+        onPlay={() => setMusicPlaying(true)}
+        onPause={() => setMusicPlaying(false)}
+        onEnded={handleMusicEnded}
+      />
+
+      <button
+        ref={musicButtonRef}
+        type="button"
+        onClick={toggleMusic}
+        aria-pressed={!musicPlaying}
+        aria-label={musicPlaying ? "Mute music" : "Unmute music"}
+        className="fixed bottom-6 left-6 z-40 flex items-center gap-2 rounded-full bg-[#a96b24] px-4 py-3 text-sm font-semibold text-white shadow-lg transition duration-300 hover:bg-[#89551c]"
+      >
+        {musicPlaying ? <Volume2 size={18} /> : <VolumeX size={18} />}
+        {musicPlaying ? "Mute" : "Unmute"}
+      </button>
 
       {/* BACK TO TOP */}
       <button
