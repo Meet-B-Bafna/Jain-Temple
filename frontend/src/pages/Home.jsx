@@ -140,7 +140,15 @@ function Home() {
       }
     }
 
-    const interactionEvents = ["pointerdown", "keydown", "touchstart"];
+    // Browsers only allow sound after a "real" gesture. On touch screens that
+    // is the end of a tap (touchend / pointerup / click), not the start.
+    const interactionEvents = [
+      "pointerdown",
+      "pointerup",
+      "click",
+      "touchend",
+      "keydown",
+    ];
 
     function removeInteractionListeners() {
       interactionEvents.forEach((name) =>
