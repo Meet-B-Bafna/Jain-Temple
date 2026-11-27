@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Menu, X, ArrowRight, LockKeyhole } from "lucide-react";
+import {
+  Menu,
+  X,
+  ArrowRight,
+  LockKeyhole,
+  ShieldCheck,
+} from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 
 function Navbar() {
@@ -16,7 +22,6 @@ function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-[#e9dfcc] bg-[#faf8f2]/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6">
-
         <Link to="/" className="flex items-center gap-3">
           <img
             src="/jain flag.jpg"
@@ -59,6 +64,20 @@ function Navbar() {
           >
             <LockKeyhole size={16} />
             Mandir Login
+          </NavLink>
+
+          <NavLink
+            to="/admin-login"
+            className={({ isActive }) =>
+              `flex items-center gap-2 rounded-full border px-4 py-2 transition ${
+                isActive
+                  ? "border-[#a96b24] bg-[#a96b24] text-white"
+                  : "border-[#a96b24] text-[#89551c] hover:bg-[#a96b24] hover:text-white"
+              }`
+            }
+          >
+            <ShieldCheck size={16} />
+            Admin
           </NavLink>
         </div>
 
@@ -106,6 +125,19 @@ function Navbar() {
           >
             <LockKeyhole size={17} />
             Mandir Login
+          </NavLink>
+
+          <NavLink
+            to="/admin-login"
+            onClick={() => setMenuOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-2 py-4 text-base ${
+                isActive ? "font-bold text-[#a96b24]" : ""
+              }`
+            }
+          >
+            <ShieldCheck size={17} />
+            Admin Login
           </NavLink>
         </div>
       )}

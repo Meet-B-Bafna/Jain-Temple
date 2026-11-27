@@ -27,7 +27,7 @@ def verify_password(password: str, hashed_password: str):
     return password_hash.verify(password, hashed_password)
 
 
-def create_access_token(temple_id: str):
+def _create_token(subject: str, role: str):
     if not JWT_SECRET_KEY:
         raise RuntimeError("JWT_SECRET_KEY is missing from .env")
 
@@ -36,7 +36,8 @@ def create_access_token(temple_id: str):
     )
 
     payload = {
-        "sub": temple_id,
+        "sub": subject,
+        "role": role,
         "exp": expiry
     }
 
@@ -47,33 +48,51 @@ def create_access_token(temple_id: str):
     )
 
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+def create_access_token(temple_id: str):
+    return _create_token(temple_id, "mandir")
+
+
+def create_admin_access_token(username: str):
+    return _create_token(username, "admin")
+
+
+async def _get_token_payload(
+    credentials: HTTPAuthorizationCredentials
 ):
     if not JWT_SECRET_KEY:
         raise RuntimeError("JWT_SECRET_KEY is missing from .env")
 
-    token = credentials.credentials
-
     try:
-        payload = jwt.decode(
-            token,
+        return jwt.decode(
+            credentials.credentials,
             JWT_SECRET_KEY,
             algorithms=[JWT_ALGORITHM]
         )
-
-        temple_id = payload.get("sub")
-
-        if not temple_id:
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid authentication token"
-            )
 
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=401,
             detail="Invalid or expired token"
+        )
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    payload = await _get_token_payload(credentials)
+
+    if payload.get("role") != "mandir":
+        raise HTTPException(
+            status_code=403,
+            detail="Mandir representative access required"
+        )
+
+    temple_id = payload.get("sub")
+
+    if not temple_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid authentication token"
         )
 
     user = await database["mandir_users"].find_one(
@@ -87,4 +106,30 @@ async def get_current_user(
             detail="Account not found or inactive"
         )
 
+    user["role"] = "mandir"
     return user
+
+
+async def get_current_admin(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    payload = await _get_token_payload(credentials)
+
+    if payload.get("role") != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Administrator access required"
+        )
+
+    username = payload.get("sub")
+
+    if not username or username != os.getenv("ADMIN_USERNAME"):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid administrator account"
+        )
+
+    return {
+        "username": username,
+        "role": "admin"
+    }
