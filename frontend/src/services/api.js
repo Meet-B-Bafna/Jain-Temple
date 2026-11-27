@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+
 
 export async function getTemples() {
   const response = await fetch(`${API_BASE_URL}/temples`);
@@ -12,6 +14,7 @@ export async function getTemples() {
   return data.temples;
 }
 
+
 export async function getTempleById(templeId) {
   const response = await fetch(`${API_BASE_URL}/temples/${templeId}`);
 
@@ -21,6 +24,7 @@ export async function getTempleById(templeId) {
 
   return await response.json();
 }
+
 
 export async function updateMyTemple(updates) {
   const token = sessionStorage.getItem("access_token");
